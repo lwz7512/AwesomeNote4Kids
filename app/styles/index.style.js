@@ -21,6 +21,7 @@ export default StyleSheet.create({
         fontSize: 24,
         textAlign: 'center',
         margin: 30,
+        fontFamily: 'SentyMARUKO',
     },
     instructions: {
         textAlign: 'center',

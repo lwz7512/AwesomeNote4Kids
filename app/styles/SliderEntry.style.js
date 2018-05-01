@@ -21,7 +21,8 @@ const entryBorderRadius = 8;
 export default StyleSheet.create({
     bigText: {
         color: '#FFFFFF',
-        fontSize: 64
+        fontSize: 64,
+        fontFamily: 'SentyMARUKO',
     },
     slideInnerContainer: {
         width: itemWidth,

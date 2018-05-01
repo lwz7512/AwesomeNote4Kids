@@ -27,7 +27,7 @@ export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = { 
-      text: 'Welcome!', 
+      text: '', 
       entries: ENTRIES1,
       slider1ActiveSlide: 0
     };
@@ -60,18 +60,21 @@ export default class App extends Component {
 
   onPressAdd () {
     let big = this.state.text;
+    let maxSize = 36;
     // alert(`You've input: '${text}'`);
 
     let origEntries = this.state.entries;
     let mrgeEntries = [...ENTRIES1, ...ENTRIES2];
     let randomImg = mrgeEntries[Math.floor(Math.random()*mrgeEntries.length)].illustration;
-    // reset all the list
-    this.setState({entries: [{
+    let merged = [{
         title: 'Favourites landscapes 1',
         subtitle: 'Lorem ipsum dolor sit amet',
         illustration: randomImg,
         big: big
-    }, ...origEntries]});
+    }, ...origEntries];
+
+    // reset all the list
+    this.setState({entries: merged.length>maxSize?merged.slice(0,maxSize):merged});
     // reset active index
     this.setState({slider1ActiveSlide: 0});
     // move to first
