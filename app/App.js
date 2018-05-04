@@ -11,9 +11,6 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
-  StatusBar,
-  Button
 } from 'react-native';
 
 import Carousel, { Pagination } from 'react-native-snap-carousel';
@@ -21,30 +18,53 @@ import styles, { colors } from './styles/index.style';
 import entrystyles, { sliderWidth, itemWidth } from './styles/SliderEntry.style';
 import { ENTRIES1, ENTRIES2 } from './static/entries';
 import SliderEntry from './components/SliderEntry';
+import ModalForm from './components/ModalForm';
+import FooterInput from './components/FooterInput';
+
+
+const titleForCard    = '解释有时是多余的';
+const subtitleForCard = '举个栗子或许更好，戳一下就能修改';
 
 export default class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { 
-      text: '', 
-      entries: ENTRIES1,
-      slider1ActiveSlide: 0
+    this.state = {
+      slider1ActiveSlide: 0,
+      entries: []
     };
     // change context pass current to function
-    this.onPressAdd = this.onPressAdd.bind(this);
+    this.addCardFor = this.addCardFor.bind(this);
+    this._renderIMGCard = this._renderIMGCard.bind(this);
+    this._slidePressed = this._slidePressed.bind(this);
   }
 
+  componentDidMount() {
+    let entries = ENTRIES1;
+    entries.forEach(item => {
+      item.title = titleForCard,
+      item.subtitle = subtitleForCard
+    });
+    this.setState({entries: entries});
+  }
+  
   _renderItem ({item, index}) {
     return (
-        <View style={entrystyles.slideInnerContainer}>
-            <Text style={entrystyles.title}>{ item.title }</Text>
-        </View>
+      <View style={entrystyles.slideInnerContainer}>
+      <Text style={entrystyles.title}>{ item.title }</Text>
+      </View>
     );
+  }
+  
+  _slidePressed () {
+    let currentEntry = this.state.entries[this.state.slider1ActiveSlide];
+    // this._modalRef.setModalVisible(true);
+    this._modalRef.popupForm(currentEntry);
   }
 
   _renderIMGCard ({item, index}) {
-      return <SliderEntry data={item} even={(index + 1) % 2 === 0} />;
+    // console.log(this);
+    return <SliderEntry data={item} even={(index + 1) % 2 === 0} slidePressed={this._slidePressed}/>;
   }
 
   _renderItemWithParallax ({item, index}, parallaxProps) {
@@ -58,8 +78,8 @@ export default class App extends Component {
     );
   }
 
-  onPressAdd () {
-    let big = this.state.text;
+  addCardFor (big) {
+    // let big = this.state.text;
     let maxSize = 36;
     // alert(`You've input: '${text}'`);
 
@@ -67,8 +87,8 @@ export default class App extends Component {
     let mrgeEntries = [...ENTRIES1, ...ENTRIES2];
     let randomImg = mrgeEntries[Math.floor(Math.random()*mrgeEntries.length)].illustration;
     let merged = [{
-        title: 'Favourites landscapes 1',
-        subtitle: 'Lorem ipsum dolor sit amet',
+        title: titleForCard,
+        subtitle: subtitleForCard,
         illustration: randomImg,
         big: big
     }, ...origEntries];
@@ -81,6 +101,18 @@ export default class App extends Component {
     this._slider1Ref.snapToItem(0);
   }
 
+  // click card -> fill form -> save to carousel
+  saveCardFor (item) {
+    // console.log(item);
+    let origEntries = this.state.entries;
+    let currentEntry = origEntries[this.state.slider1ActiveSlide];
+    // merge
+    currentEntry = Object.assign(currentEntry, item);
+    // update current entry
+    origEntries[this.state.slider1ActiveSlide] = currentEntry;
+    this.setState({entries: origEntries});
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -88,6 +120,7 @@ export default class App extends Component {
         <Text style={styles.welcome}>
           Note for Kids!
         </Text>
+
         <View style={styles.carouselContainer}>
           <Carousel
             ref={c => this._slider1Ref = c}
@@ -117,22 +150,15 @@ export default class App extends Component {
           />
         </View>
         
-        <View style={styles.inputRow}>
-          <TextInput
-            style={styles.input}
-            onChangeText={(text) => this.setState({text})}
-            placeholder='Input here'
-          />
-          <View style={styles.btnContainer}>
-            <Button
-              onPress={this.onPressAdd}
-              title="Add"
-              color="#FFF"
-            />
-          </View>
-          
-        </View>
-        
+        <FooterInput
+          addTextHandler={(big) => {this.addCardFor(big)}}
+        />
+        {/* how to dynamic create? */}
+        <ModalForm 
+          ref={c => this._modalRef = c}
+          onFormSaved={(item) => this.saveCardFor(item)}
+        />
+
       </View>
     );
   }

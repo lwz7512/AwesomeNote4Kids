@@ -18,7 +18,7 @@ export default StyleSheet.create({
         // paddingVertical: 30
     },
     welcome: {
-        fontSize: 24,
+        fontSize: 36,
         textAlign: 'center',
         margin: 30,
         fontFamily: 'SentyMARUKO',
@@ -28,22 +28,6 @@ export default StyleSheet.create({
         color: '#333333',
         marginBottom: 20,
         fontSize: 80
-    },
-    inputRow: {
-        height: 40,
-        flexDirection: 'row',
-        backgroundColor: '#F5F5F5'
-    },
-    input: {
-        width: '80%', height: 40, 
-        // borderColor: 'gray', borderWidth: 1,
-        backgroundColor: '#FFFFFF',
-        paddingLeft: 10
-    },
-    btnContainer: {
-        flex: 1,
-        backgroundColor: '#666666',
-        justifyContent: 'center'
     },
 // --------------------------    
     safeArea: {

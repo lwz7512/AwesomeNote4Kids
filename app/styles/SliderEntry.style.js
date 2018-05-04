@@ -93,7 +93,7 @@ export default StyleSheet.create({
     },
     title: {
         color: colors.black,
-        fontSize: 13,
+        fontSize: 16,
         fontWeight: 'bold',
         letterSpacing: 0.5
     },
@@ -103,7 +103,7 @@ export default StyleSheet.create({
     subtitle: {
         marginTop: 6,
         color: colors.gray,
-        fontSize: 12,
+        fontSize: 14,
         fontStyle: 'italic'
     },
     subtitleEven: {
