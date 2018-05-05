@@ -13,4 +13,4 @@ $ react-native run-ios
 
 ### Screenshot
 
-![](niuniu.jpg)
+![](screenshots.png)
