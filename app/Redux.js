@@ -5,12 +5,20 @@ import storage from 'redux-persist/lib/storage' // defaults to localStorage for 
 
 import { ENTRIES1, ENTRIES2 } from './static/entries';
 
+const maxSize = 36;
 const titleForCard    = '解释有时是多余的';
 const subtitleForCard = '举个栗子或许更好，戳一下就能修改';
 
 const persistConfig = {
     key: 'note',
     storage,
+}
+
+const types = {
+  ADD_ITEM: 'ADD',
+  UPDATE_ITEM: 'UPDATE',
+  SWITCH_ITEM: 'SWITCH',
+  REMOVE_ITEM: 'REMOVE',
 }
 
 // Initial state of the store
@@ -29,19 +37,74 @@ const initialState = () => {
   
 // Helper functions to dispatch actions, optionally with payloads
 export const actionCreators = {
-    add: (big) => {
-      return {type: 'ADD', payload: big}
-    },
-    update: (item) => {
-      return {type: 'UPDATE', payload: item}
-    },
-    switch: (index) => {
-      return {type: 'SWITCH', payload: index}
-    },
-    remove: (index) => {
-      return {type: 'REMOVE', payload: index}
-    }
+  add: (big) => {
+    return {type: types.ADD_ITEM, payload: big}
+  },
+  update: (item) => {
+    return {type: types.UPDATE_ITEM, payload: item}
+  },
+  switch: (index) => {
+    return {type: types.SWITCH_ITEM, payload: index}
+  },
+  remove: (index) => {
+    return {type: types.REMOVE_ITEM, payload: index}
+  }
 }
+
+const hander_ADD = (state, action) => {
+  const {notes, index} = state;
+  const {type, payload} = action; // from actionCreators
+
+  let mrgeEntries = [...ENTRIES1, ...ENTRIES2];
+  let randomImg = mrgeEntries[Math.floor(Math.random()*mrgeEntries.length)].illustration;
+  let merged = [{
+    big: payload, // add a new word
+    title: titleForCard,
+    subtitle: subtitleForCard,
+    illustration: randomImg,
+  }, ...notes];
+
+  // reset all the list
+  let limitedNotes = merged.length>maxSize?merged.slice(0,maxSize):merged;
+  
+  return {
+    notes: limitedNotes,
+    index: 0
+  }
+}
+
+const hander_UPDATE = (state, action) => {
+  const {notes, index} = state;
+  const {type, payload} = action; // from actionCreators
+
+  let currentNote = notes[index];
+  // merge
+  notes[index] = Object.assign(currentNote, payload);
+  return {
+    notes: [...notes], // return new notes
+    index: index
+  }
+}
+
+const hander_SWITCH = (state, action) => {
+  const {notes, index} = state;
+  const {type, payload} = action; // from actionCreators
+
+  return {
+    notes: notes,
+    index: payload // new position
+  }
+}
+
+const hander_REMOVE = (state, action) => {
+  const {notes, index} = state;
+  const {type, payload} = action; // from actionCreators
+
+  return {
+    notes: notes.filter((note, i) => i !== payload),
+  }
+}
+
   
 // reducers.js, produce new state based on action
 // Notes:
@@ -51,56 +114,17 @@ export const actionCreators = {
 //   call reducer() with no state on startup, and we are expected to
 //   return the initial state of the app in this case.
 const _reducer = (state = initialState(), action) => {
-    // console.log(state);
+  let at = action.type;
+  let handlers = {
+    [types.ADD_ITEM]:    hander_ADD,
+    [types.UPDATE_ITEM]: hander_UPDATE,
+    [types.SWITCH_ITEM]: hander_SWITCH,
+    [types.REMOVE_ITEM]: hander_REMOVE
+  };
 
-    const {notes, index} = state;
-    const {type, payload} = action; // from actionCreators
-    const maxSize = 36;
+  if(handlers[at]) return handlers[at](state, action);
 
-    switch (action.type) {
-        case 'ADD':
-        
-        let mrgeEntries = [...ENTRIES1, ...ENTRIES2];
-        let randomImg = mrgeEntries[Math.floor(Math.random()*mrgeEntries.length)].illustration;
-        let merged = [{
-          big: payload, // add a new word
-          title: titleForCard,
-          subtitle: subtitleForCard,
-          illustration: randomImg,
-        }, ...notes];
-
-        // reset all the list
-        let limitedNotes = merged.length>maxSize?merged.slice(0,maxSize):merged;
-        
-        return {
-          notes: limitedNotes,
-          index: 0
-        }
-
-        case 'UPDATE':
-        let currentNote = notes[index];
-        // merge
-        notes[index] = Object.assign(currentNote, payload);
-        return {
-          notes: [...notes], // return new notes
-          index: index
-        }
-
-        case 'SWITCH':
-        return {
-          notes: notes,
-          index: payload // new position
-        }
-
-        case 'REMOVE':
-        return {
-          notes: notes.filter((note, i) => i !== payload),
-        }
-
-        default:
-        // return default value while app start
-        return state;
-    }
+  return state;
 };
 
 
