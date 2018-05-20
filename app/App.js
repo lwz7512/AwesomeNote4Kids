@@ -27,7 +27,7 @@ import FooterInput from './components/FooterInput';
 // include connect for App
 import { connect } from 'react-redux'
 import { actionCreators } from './Redux'
-
+import RecordHelper from './Helper';
 
 export class App extends Component {
 
@@ -41,7 +41,10 @@ export class App extends Component {
   }
 
   componentDidMount() {
-    // do nothing here
+    RecordHelper.setup().then(results => {
+      console.log(results);
+      this.setState({permission: results[2]});// record the android permission
+    });
   }
   
   _renderItem ({item, index}) {
@@ -54,7 +57,8 @@ export class App extends Component {
   
   _slidePressed () {
     const {notes, index} = this.props;
-    this._modalRef.popupForm(notes[index]);
+    // this._modalRef.popupForm(notes[index]);
+    this._modalRef.popupFormWithPermission(notes[index], this.state.permission);
   }
 
   _renderIMGCard ({item, index}) {
