@@ -6,7 +6,7 @@ import storage from 'redux-persist/lib/storage' // defaults to localStorage for 
 import { ENTRIES1, ENTRIES2 } from './static/entries';
 
 const maxSize = 36;
-const titleForCard    = '有时是多余的';
+const titleForCard    = '解释有时是多余的';
 const subtitleForCard = '举个栗子或许更好，戳一下就能修改';
 
 const persistConfig = {

@@ -7,6 +7,7 @@ to run this app:
 
 ```
 $ npm install
+$ react-native link
 $ react-native run-ios
 ```
 

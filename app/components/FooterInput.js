@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { 
   View, 
-  Text, 
+  TextInput, Text,
   StyleSheet,
-  TextInput,
   StatusBar,
-  Button,
+  TouchableOpacity,
 } from 'react-native';
 
 const styles = StyleSheet.create({
@@ -23,8 +22,16 @@ const styles = StyleSheet.create({
     btnContainer: {
         flex: 1,
         backgroundColor: '#666666',
-        justifyContent: 'center'
     },
+    txtBtnCtnr: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    btnTxt: {
+      color: '#FFF'
+    }
+
 })
 
 export default class FooterInput extends Component {
@@ -60,12 +67,9 @@ export default class FooterInput extends Component {
           placeholder='这里写...'
         />
         <View style={styles.btnContainer}>
-          <Button
-            // onPress={this.onPressAdd}
-            onPress={this.onSubmit}
-            title="添加"
-            color="#FFF"
-          />
+          <TouchableOpacity onPress={this.onSubmit} style={styles.txtBtnCtnr}>
+            <Text style={styles.btnTxt}>添加</Text>
+          </TouchableOpacity>
         </View>
       </View>
     );

@@ -27,16 +27,12 @@ export default StyleSheet.create({
   },
   btnBackground: {
     backgroundColor: '#48BBEC',
-    borderColor: '#48BBEC',
-    borderWidth: 1,
     borderRadius: 8,
     marginBottom: 10,
     marginTop: 10
   },
   btnBackgroundGray: {
     backgroundColor: '#F0F0F0',
-    borderColor: '#F0F0F0',
-    borderWidth: 1,
     borderRadius: 8,
     marginBottom: 10,
   },

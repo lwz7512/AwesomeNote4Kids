@@ -62,23 +62,31 @@ export default class ModalForm extends Component {
   }
   popupFormWithPermission(item, permission) {
     console.log(item);
+
+    var tempAudioPath = RecordHelper.recordsDir() + '/tmp.aac';
     
     this.setState({
       id: item.id?item.id:new Date().getTime(),
-      aac: value.aac?value.aac:null,
+      aac: item.aac?item.aac:null,
       value: item,
       modalVisible: true,
       permission: permission,
-      tempAudioPath: RecordHelper.recordsDir() + '/tmp.aac'
+      tempAudioPath: tempAudioPath
     });
     
-    AudioRecorder.prepareRecordingAtPath(this.state.tempAudioPath, {
+    AudioRecorder.prepareRecordingAtPath(tempAudioPath, {
       SampleRate: 22050,
       Channels: 1,
       AudioQuality: "Low",
       AudioEncoding: "aac",
       AudioEncodingBitRate: 32000
+    }).catch(err => {
+      console.error(err);
     });
+  }
+
+  modalClosed() {
+    console.log('modal closed!');
   }
 
   getAudioFilePath() {
@@ -185,10 +193,12 @@ export default class ModalForm extends Component {
   }
 
   playingSound() {
+    if(this.state.playing) return;
+    
     this.setState({playing: true});
     // TODO, if end of soud revert the playing to false...
     // setTimeout(()=> this.setState({playing: false}), 3000);
-    if(this.state.aac) this._play();
+    if(this.state.aac) this._play(()=> this.setState({playing: false}));
     if(!this.state.aac) console.warn('NO aac file for this card!');
   }
   
@@ -213,7 +223,7 @@ export default class ModalForm extends Component {
     }
   }
 
-  async _play() {
+  async _play(callback) {
     // These timeouts are a hacky workaround for some issues with react-native-sound.
     // See https://github.com/zmxv/react-native-sound/issues/89.
     setTimeout(() => {
@@ -227,6 +237,7 @@ export default class ModalForm extends Component {
         sound.play((success) => {
           if (success) {
             console.log('successfully finished playing');
+            callback();
           } else {
             console.log('playback failed due to audio decoding errors');
           }
@@ -302,6 +313,7 @@ export default class ModalForm extends Component {
         animationType="slide"
         transparent={false}
         visible={this.state.modalVisible}
+        onRequestClose={this.modalClosed}
         >
         <View style={styles.container}>
           <Form
@@ -318,14 +330,15 @@ export default class ModalForm extends Component {
             <Button
               onPress={this.saveFormData}
               title="保 存"
-              color="#FFF"
+              color="#841584"
+              borderColor='#fff'
             />
           </View>
           <View style={styles.btnBackgroundGray}>
             <Button
               onPress={() => this.setModalVisible(!this.state.modalVisible)}
               title="取 消"
-              color="#666"
+              
             />
           </View>
         </View>
