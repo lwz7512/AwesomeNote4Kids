@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import {  
-  View, Text, Modal, 
-  TouchableHighlight, StyleSheet, Button, Image, 
+  View, Modal, Alert,
+  Button, Image, 
   TouchableOpacity, TouchableWithoutFeedback,
-  PermissionsAndroid, Platform,
 } from 'react-native';
 
 // var t = require('tcomb-form-native');
@@ -58,22 +57,24 @@ export default class ModalForm extends Component {
   // called by app
   popupForm(item) {
     this.setState({value:item, modalVisible: true});
-    // console.log(this.state);
   }
   popupFormWithPermission(item, permission) {
-    console.log(item);
-
-    var tempAudioPath = RecordHelper.recordsDir() + '/tmp.aac';
-    
+    this.clearFlag = 0;
+    var tempAudioPath = this._prepareRecord();
     this.setState({
       id: item.id?item.id:new Date().getTime(),
       aac: item.aac?item.aac:null,
       value: item,
       modalVisible: true,
       permission: permission,
-      tempAudioPath: tempAudioPath
+      tempAudioPath: tempAudioPath,
+      record: false
     });
-    
+    this._prepareRecord();
+  }
+
+  _prepareRecord() {
+    var tempAudioPath = RecordHelper.recordsDir() + '/tmp.aac';
     AudioRecorder.prepareRecordingAtPath(tempAudioPath, {
       SampleRate: 22050,
       Channels: 1,
@@ -83,6 +84,7 @@ export default class ModalForm extends Component {
     }).catch(err => {
       console.error(err);
     });
+    return tempAudioPath;
   }
 
   modalClosed() {
@@ -95,15 +97,15 @@ export default class ModalForm extends Component {
 
   saveFormData() {
     let value = this.refs.form.getValue();
-    console.log(value);
     if(value){
-      let newValue = {...value, id: this.state.id, aac: this.state.acc};
+      let newValue = {...value, id: this.state.id, aac: this.state.aac, record: false};
       this.props.onFormSaved(newValue); // callback
     }
 
     this.setState({modalVisible: false});
     // clear content from all textbox
-    this.setState({ value: null });
+    this.setState({ value: null, record: false });
+
   }
 
   onChange(value) {
@@ -117,14 +119,9 @@ export default class ModalForm extends Component {
     
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#F0F0F0';
-    ctx.arc(50, 50, 40, 0, Math.PI * 2, true);
+    ctx.arc(50, 50, 41, 0, Math.PI * 2, true);
     ctx.fill();
 
-    ctx.lineWidth = 10;
-    ctx.strokeStyle = "#DDDDDD";
-    ctx.beginPath();
-    ctx.arc(50, 50, 45, 0, 2 * Math.PI);
-    ctx.stroke();
   }
 
   handleBottomCanvas = (canvas) => {
@@ -133,7 +130,7 @@ export default class ModalForm extends Component {
     const ctx = canvas.getContext('2d');
 
     ctx.lineWidth = 8;
-    ctx.strokeStyle = "#F0F0F0";
+    ctx.strokeStyle = "#DDDDDD";
     ctx.beginPath();
     ctx.arc(50, 50, 45, 0, 2 * Math.PI);
     ctx.stroke();
@@ -147,26 +144,33 @@ export default class ModalForm extends Component {
     this.setState({pressed: true});
 
     let ctx = this.canvas.getContext('2d');
+    ctx.clearRect(0, 0, 100, 100);
+    
     this.arcTotal = 0;
+    this.clearFlag = 0; // to improve drawing blink problem @2018/06/09
     this.drawingInterval = setInterval(()=>{
-      // console.log('drawing...');
       this.arcTotal += Math.PI/50;
-
-      ctx.clearRect(0, 0, 100, 100); // clear the canvas
-      ctx.strokeStyle = "#007ACC";
+      
+      if(this.clearFlag % 10 == 0) ctx.clearRect(0, 0, 100, 100); // clear the canvas
+      
+      ctx.strokeStyle = "#32CD32";
       ctx.beginPath();
-      ctx.arc(50, 50, 45, 0, this.arcTotal);
+      ctx.arc(50, 50, 45, 0-Math.PI/2, this.arcTotal-Math.PI/2);
       ctx.stroke();
+      
+      this.clearFlag += 1;
 
       // more than 10 seconds to stop automatically...
       if(this.arcTotal>2*Math.PI){
         this.finishRecord();
-        console.warn('record finished!');
+        this.arcTotal = 0;
+        this.clearFlag = 0;
       }
       
     }, 100);
 
     //  recording sound...
+    this._prepareRecord();
     this._record();
   }
 
@@ -176,30 +180,49 @@ export default class ModalForm extends Component {
     clearInterval(this.drawingInterval);
     let ctx = this.canvas.getContext('2d');
     ctx.clearRect(0, 0, 100, 100); // clear the canvas
-    
-    // stop record!
-    this._stop();
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = "#DDDDDD";
+    ctx.beginPath();
+    ctx.arc(50, 50, 45, 0, 2 * Math.PI);
+    ctx.stroke();
 
     // more than one second to create file...
     if(this.arcTotal > Math.PI/5) {
-      // COPY temp file to permanent file
+      // stop record!
+     this._stop(()=>{
+       // COPY temp file to permanent file
       RecordHelper.copyFile(this.state.tempAudioPath, this.getAudioFilePath());
       // SAVE to state!
-      this.state({aac: this.getAudioFilePath()});
+      this.setState({aac: this.getAudioFilePath()});
+     });
+    }else{
+      this._stop();
     }
 
-    // this place the last...
-    this.arcTotal = 0;
   }
+  
 
   playingSound() {
     if(this.state.playing) return;
+    if(!this.state.aac) return this._showAlert('提醒', '当前卡片没有录音');
     
     this.setState({playing: true});
     // TODO, if end of soud revert the playing to false...
     // setTimeout(()=> this.setState({playing: false}), 3000);
     if(this.state.aac) this._play(()=> this.setState({playing: false}));
-    if(!this.state.aac) console.warn('NO aac file for this card!');
+  }
+
+  _showAlert(title, content) {
+    Alert.alert(
+      title,
+      content,
+      [
+        // {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+        // {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+        {text: '好的', onPress: () => console.log('OK Pressed')},
+      ],
+      { cancelable: false }
+    )
   }
   
   // ---------------- core function -------------------------
@@ -211,12 +234,11 @@ export default class ModalForm extends Component {
     }
   }
 
-  async _stop() {
-
+  async _stop(callback) {
     try {
       const filePath = await AudioRecorder.stopRecording();
-      console.warn(`record file: ${filePath}`);
-      
+      // console.warn(`record file: ${filePath}`);
+      if(callback) callback();
       return filePath;
     } catch (error) {
       console.error(error);
@@ -237,10 +259,10 @@ export default class ModalForm extends Component {
         sound.play((success) => {
           if (success) {
             console.log('successfully finished playing');
-            callback();
           } else {
             console.log('playback failed due to audio decoding errors');
           }
+          callback();
         });
       }, 100);
     }, 100);
@@ -331,14 +353,12 @@ export default class ModalForm extends Component {
               onPress={this.saveFormData}
               title="保 存"
               color="#841584"
-              borderColor='#fff'
             />
           </View>
           <View style={styles.btnBackgroundGray}>
             <Button
               onPress={() => this.setModalVisible(!this.state.modalVisible)}
               title="取 消"
-              
             />
           </View>
         </View>

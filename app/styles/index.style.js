@@ -90,5 +90,5 @@ export default StyleSheet.create({
         borderRadius: 4,
         marginVertical: 8,
         // marginHorizontal: 8
-    }
+    },
 });

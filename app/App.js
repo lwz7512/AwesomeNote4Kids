@@ -10,10 +10,8 @@
 
 import React, { Component } from 'react';
 import {
-  Platform,
-  StyleSheet,
-  Text,
-  View,
+  Platform, Keyboard,
+  Text, View, 
 } from 'react-native';
 
 import Carousel, { Pagination } from 'react-native-snap-carousel';
@@ -23,6 +21,7 @@ import entrystyles, { sliderWidth, itemWidth } from './styles/SliderEntry.style'
 import SliderEntry from './components/SliderEntry';
 import ModalForm from './components/ModalForm';
 import FooterInput from './components/FooterInput';
+import PlayingBtn from './components/PlayingBtn';
 
 // include connect for App
 import { connect } from 'react-redux'
@@ -33,14 +32,23 @@ export class App extends Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      miniMode: false // default show pagination dots and play button
+    }
     
     // change context pass current to function
     this.addCardFor = this.addCardFor.bind(this);
     this._renderIMGCard = this._renderIMGCard.bind(this);
     this._slidePressed = this._slidePressed.bind(this);
+    this._keyboardDidShow = this._keyboardDidShow.bind(this);
+    this._keyboardDidHide = this._keyboardDidHide.bind(this);
   }
 
   componentDidMount() {
+    Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+
     RecordHelper.setup().then(results => {
       console.log(results);
       this.setState({permission: results[2]});// record the android permission
@@ -88,16 +96,27 @@ export class App extends Component {
     this.props.dispatch(actionCreators.update(item));
   }
 
+  _keyboardDidShow () {
+    this.setState({miniMode: true});
+  }
+
+  _keyboardDidHide () {
+    this.setState({miniMode: false});
+  }
+
+
+
   render() {
     // injected by redux
     const {notes, index} = this.props;
+    const aac = notes[index].hasOwnProperty('aac')?notes[index].aac:null;
 
     return (
       <View style={styles.container}>
       
-        <Text style={styles.welcome}>
+        {!this.state.miniMode?(<Text style={styles.welcome}>
           Note for Kids!
-        </Text>
+        </Text>):false}
 
         <View style={styles.carouselContainer}>
           <Carousel
@@ -113,7 +132,10 @@ export class App extends Component {
             contentContainerCustomStyle={styles.sliderContentContainer}
             onSnapToItem={(index) => this.props.dispatch(actionCreators.switch(index)) }
           />
-          <Pagination
+
+          {!this.state.miniMode?(<PlayingBtn source={aac}/>):false}
+
+          {!this.state.miniMode?(<Pagination
             dotsLength={notes.length}
             activeDotIndex={index}
             containerStyle={styles.paginationContainer}
@@ -124,7 +146,7 @@ export class App extends Component {
             inactiveDotScale={0.6}
             carouselRef={this._carousel}
             tappableDots={!!this._carousel}
-          />
+          />):false}
         </View>
         
         <FooterInput

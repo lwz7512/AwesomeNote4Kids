@@ -43,10 +43,10 @@ export default StyleSheet.create({
         shadowRadius: 10,
         borderRadius: entryBorderRadius,
         // add this is a must! @2018/04/23
-        backgroundColor: colors.black
+        // backgroundColor: colors.gray
     },
     imageContainer: { // card image header with center Text @2018/04/24
-        flex: 1,
+        flex: 1, 
         marginBottom: IS_IOS ? 0 : -1, // Prevent a random Android rendering issue
         // margin: 10,
         backgroundColor: 'white',
@@ -62,8 +62,8 @@ export default StyleSheet.create({
         ...StyleSheet.absoluteFillObject,
         resizeMode: 'cover',
         borderRadius: IS_IOS ? entryBorderRadius : 0,
-        // borderTopLeftRadius: entryBorderRadius,
-        // borderTopRightRadius: entryBorderRadius
+        borderTopLeftRadius: entryBorderRadius,
+        borderTopRightRadius: entryBorderRadius
     },
     // image's border radius is buggy on iOS; let's hack it!
     radiusMask: {

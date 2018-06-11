@@ -49,5 +49,18 @@ export default class Helper {
     return RNFS.copyFile(source, dest);
   }
 
+  static deleteFile(source) {
+    if(!source) return;
+    // console.log('>>> delete one file: '+source);
+    return RNFS.unlink(source)
+    .then(() => {
+      console.log('FILE DELETED');
+    })
+    // `unlink` will throw an error, if the item to unlink does not exist
+    .catch((err) => {
+      console.error(err.message);
+    });    
+  }
+
 
 }

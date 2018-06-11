@@ -63,8 +63,8 @@ export default class FooterInput extends Component {
         <TextInput
           style={styles.input}
           value={this.state.text}
-          onChangeText={(text) => this.setState({text})}
           placeholder='这里写...'
+          onChangeText={(text) => this.setState({text})}
         />
         <View style={styles.btnContainer}>
           <TouchableOpacity onPress={this.onSubmit} style={styles.txtBtnCtnr}>

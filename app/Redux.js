@@ -4,8 +4,10 @@ import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage' // defaults to localStorage for web and AsyncStorage for react-native
 
 import { ENTRIES1, ENTRIES2 } from './static/entries';
+import RecordHelper from './Helper';
 
-const maxSize = 36;
+
+const maxSize = 12;
 const titleForCard    = '解释有时是多余的';
 const subtitleForCard = '举个栗子或许更好，戳一下就能修改';
 
@@ -55,7 +57,7 @@ const hander_ADD = (state, action) => {
   const {notes, index} = state;
   const {type, payload} = action; // from actionCreators
 
-  let mrgeEntries = [...ENTRIES1, ...ENTRIES2];
+  let mrgeEntries = [...ENTRIES1];
   let randomImg = mrgeEntries[Math.floor(Math.random()*mrgeEntries.length)].illustration;
   let merged = [{
     big: payload, // add a new word
@@ -65,10 +67,13 @@ const hander_ADD = (state, action) => {
   }, ...notes];
 
   // reset all the list
-  let limitedNotes = merged.length>maxSize?merged.slice(0,maxSize):merged;
-  
+  if(merged.length>maxSize) {
+    let last = merged.pop(); // remove the last
+    if(last.hasOwnProperty('aac')) RecordHelper.deleteFile(last.aac);
+  }
+
   return {
-    notes: limitedNotes,
+    notes: merged,
     index: 0
   }
 }
