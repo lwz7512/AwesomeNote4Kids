@@ -11,7 +11,11 @@ This is a two screen RNA aiming to provide extremely simple note-taking funciton
 ```
 $ npm install
 $ react-native link
+$ react-native start
+
 $ react-native run-ios
+or
+$ react-native run-android
 ```
 
 
