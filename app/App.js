@@ -28,6 +28,9 @@ import { connect } from 'react-redux'
 import { actionCreators } from './Redux'
 import RecordHelper from './Helper';
 
+import SplashScreen from 'react-native-splash-screen'
+
+
 export class App extends Component {
 
   constructor(props) {
@@ -46,6 +49,8 @@ export class App extends Component {
   }
 
   componentDidMount() {
+    SplashScreen.hide();
+    
     Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
     Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
 

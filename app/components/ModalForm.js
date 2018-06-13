@@ -81,9 +81,11 @@ export default class ModalForm extends Component {
       AudioQuality: "Low",
       AudioEncoding: "aac",
       AudioEncodingBitRate: 32000
-    }).catch(err => {
-      console.error(err);
-    });
+    })
+    // FIXME, error in ios for this catch @2018/06/13
+    // .catch(() => {
+    //   console.error('prepare record path ERROR!');
+    // });
     return tempAudioPath;
   }
 
@@ -352,7 +354,7 @@ export default class ModalForm extends Component {
             <Button
               onPress={this.saveFormData}
               title="保 存"
-              color="#841584"
+              color="#FFFFFF"
             />
           </View>
           <View style={styles.btnBackgroundGray}>
