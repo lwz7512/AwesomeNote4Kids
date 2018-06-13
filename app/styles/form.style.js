@@ -32,7 +32,7 @@ export default StyleSheet.create({
     marginTop: 10
   },
   btnBackgroundGray: {
-    backgroundColor: '#F0F0F0',
+    backgroundColor: '#DDDDDD',
     borderRadius: 8,
     marginBottom: 10,
   },

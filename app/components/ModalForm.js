@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {  
-  View, Modal, Alert,
-  Button, Image, 
+  Platform, View, Modal, Alert, Button, Image, 
   TouchableOpacity, TouchableWithoutFeedback,
 } from 'react-native';
 
@@ -17,7 +16,7 @@ import RecordHelper from '../Helper';
 
 
 const Form = t.form.Form;
-
+const IS_IOS = Platform.OS === 'ios';
 
 
 export default class ModalForm extends Component {
@@ -332,6 +331,7 @@ export default class ModalForm extends Component {
       </View>
     ) : false;
 
+
     return (
       <Modal
         animationType="slide"
@@ -354,13 +354,14 @@ export default class ModalForm extends Component {
             <Button
               onPress={this.saveFormData}
               title="保 存"
-              color="#FFFFFF"
+              color={IS_IOS?"#FFFFFF":"#48BBEC"}
             />
           </View>
           <View style={styles.btnBackgroundGray}>
             <Button
               onPress={() => this.setModalVisible(!this.state.modalVisible)}
               title="取 消"
+              color={IS_IOS?"#FFFFFF":"#DDDDDD"}
             />
           </View>
         </View>

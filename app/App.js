@@ -9,10 +9,7 @@
  */
 
 import React, { Component } from 'react';
-import {
-  Platform, Keyboard,
-  Text, View, 
-} from 'react-native';
+import { Keyboard, Text, View, } from 'react-native';
 
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import styles, { colors } from './styles/index.style';
